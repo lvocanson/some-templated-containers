@@ -1,101 +1,226 @@
 #pragma once
-#include <concepts>
+#include <cassert>
 #include <vector>
 
+#include "stc_utils/define_macros.h"
 namespace stc
 {
 
 /**
- * @brief A wrapper around std::vector that provides fast removal of elements at any index
- *        at the cost of maintaining element order.
+ * @brief Extension of std::vector for fast O(1) removal at any index.
  *
- * This class is designed for scenarios where frequent and efficient removals are required.
- * It swaps the element to be removed with the last element, then removes the last element,
- * ensuring O(1) complexity for deletions.
+ * This class inherits from std::vector and adds the ability to remove an element in O(1) by swapping
+ * it with the last element before removal. This operation sacrifices the order of elements as a trade-off
+ * for improved performance.
+ *
+ * @tparam T Type of elements stored in the container.
+ * @tparam Allocator Allocator used for memory management (defaults to std::allocator<T>).
  */
-template<typename T, typename A = std::vector<T>::allocator_type>
-class swap_back_array
+template<typename T, typename Allocator = std::allocator<T>>
+class swap_back_array : public std::vector<T, Allocator>
 {
+	using base = std::vector<T, Allocator>;
+
 public:
 
-    // underlying container type
-    using uct = std::vector<T, A>;
+	// Redeclare all base constructors
+	using base::base;
 
-    template<typename ...params> requires std::constructible_from<uct, params...>
-    swap_back_array(params&& ...parameters)
-        : m_data(std::forward<params>(parameters)...)
-    {
-    }
+	/**
+	 * @brief Constructs a swap_back_array from an existing std::vector.
+	 *
+	 * @param other The std::vector to copy from.
+	 */
+	CONSTEXPR20 swap_back_array(const base& other) : base(other) {}
 
-    void reserve(uct::size_type capacity)
-    {
-        m_data.reserve(capacity);
-    }
+	/**
+	 * @brief Constructs a swap_back_array by moving an existing std::vector.
+	 *
+	 * @param other The std::vector to move from.
+	 */
+	CONSTEXPR20 swap_back_array(base&& other) NOEXCEPT17 : base(std::move(other)) {}
 
-    template<typename ...params>
-    void emplace_back(params&& ...parameters)
-    {
-        m_data.emplace_back(std::forward<params>(parameters)...);
-    }
+	/**
+	 * @brief Constructs a swap_back_array from another swap_back_array.
+	 *
+	 * @param other The swap_back_array to copy from.
+	 */
+	CONSTEXPR20 swap_back_array(const swap_back_array& other) = default;
 
-    void erase(uct::size_type element_index)
-    {
-        m_data[element_index] = std::move(m_data.back());
-        m_data.pop_back();
-    }
+	/**
+	 * @brief Constructs a swap_back_array by moving another swap_back_array.
+	 *
+	 * @param other The swap_back_array to move from.
+	 */
+	CONSTEXPR20 swap_back_array(swap_back_array&& other) NOEXCEPT17 = default;
 
-    [[nodiscard]] uct::size_type size() const
-    {
-        return m_data.size();
-    }
+	/**
+	 * @brief Copy assignment operator from an std::vector.
+	 *
+	 * @param other The std::vector to copy from.
+	 * @return Reference to this swap_back_array.
+	 */
+	CONSTEXPR20 swap_back_array& operator=(const base& other)
+	{
+		base::operator=(other);
+		return *this;
+	}
 
-    [[nodiscard]] uct::size_type capacity() const
-    {
-        return m_data.capacity();
-    }
+	/**
+	 * @brief Move assignment operator from an std::vector.
+	 *
+	 * @param other The std::vector to move from.
+	 * @return Reference to this swap_back_array.
+	 */
+	swap_back_array& operator=(base&& other) IF_CPP17(noexcept(
+		std::allocator_traits<Allocator>::propagate_on_container_move_assignment::value ||
+		std::allocator_traits<Allocator>::is_always_equal::value))
+	{
+		base::operator=(std::move(other));
+		return *this;
+	}
 
-    [[nodiscard]] uct::reference operator[](uct::size_type element_index)
-    {
-        return m_data[element_index];
-    }
+	/**
+	 * @brief Copy assignment operator from another swap_back_array.
+	 *
+	 * @param other The swap_back_array to copy from.
+	 * @return Reference to this swap_back_array.
+	 */
+	CONSTEXPR20 swap_back_array& operator=(const swap_back_array& other) = default;
 
-    [[nodiscard]] uct::const_reference operator[](uct::size_type element_index) const
-    {
-        return m_data[element_index];
-    }
+	/**
+	 * @brief Move assignment operator from another swap_back_array.
+	 *
+	 * @param other The swap_back_array to move from.
+	 * @return Reference to this swap_back_array.
+	 */
+	swap_back_array& operator=(swap_back_array&& other) IF_CPP17(noexcept(
+		std::allocator_traits<Allocator>::propagate_on_container_move_assignment::value ||
+		std::allocator_traits<Allocator>::is_always_equal::value)) = default;
 
-    [[nodiscard]] uct::iterator begin()
-    {
-        return m_data.begin();
-    }
+	/**
+	 * @brief Assigns the contents of an initializer list to the swap_back_array.
+	 *
+	 * @param ilist The initializer list to assign from.
+	 * @return Reference to this swap_back_array.
+	 */
+	CONSTEXPR20 swap_back_array& operator=(std::initializer_list<T> ilist)
+	{
+		base::operator=(ilist);
+		return *this;
+	}
 
-    [[nodiscard]] uct::const_iterator begin() const
-    {
-        return m_data.begin();
-    }
+	/**
+	 * @brief Removes an element at the specified index in O(1) time.
+	 *
+	 * This method swaps the element at the given index with the last element, then removes the last element.
+	 *
+	 * @note The user is responsible for providing a valid index.
+	 * @note The type T must be move assignable to use this method.
+	 * @note If the user is iterating over the container, the same index should be reused for the next iteration.
+	 *
+	 * @param element_index The index of the element to remove.
+	 */
+	CONSTEXPR20 void erase_swap(base::size_type element_index)
+	{
+		assert(element_index < base::size());
 
-    [[nodiscard]] uct::iterator end()
-    {
-        return m_data.end();
-    }
+		if (element_index + 1 != base::size())
+		{
+			base::at(element_index) = std::move(base::back());
+		}
+		base::pop_back();
+	}
 
-    [[nodiscard]] uct::const_iterator end() const
-    {
-        return m_data.end();
-    }
+	/**
+	 * @brief Removes a range of elements starting from the specified index in O(1) time per element.
+	 *
+	 * This method swaps elements in the specified range with elements at the end of the container,
+	 * then removes the last elements.
+	 *
+	 * @note The user is responsible for providing a valid range (start_index + count <= container.size()).
+	 * @note The type T must be move assignable to use this method.
+	 * @note If the user is iterating over the container, the same start_index should be reused for the next iteration.
+	 *
+	 * @param start_index The starting index of the range to remove.
+	 * @param count The number of elements to remove.
+	 */
+	CONSTEXPR20 void erase_swap(base::size_type start_index, base::size_type count)
+	{
+		assert(start_index + count <= base::size());
 
-    [[nodiscard]] uct& get_underlying_container()
-    {
-        return m_data;
-    }
+		auto next_to_move = base::end() - 1;
+		const size_t past_end_index = start_index + count;
+		while (start_index != past_end_index && start_index + count != base::size())
+		{
+			base::at(start_index) = std::move(*next_to_move);
+			++start_index;
+			--next_to_move;
+		}
 
-    [[nodiscard]] const uct& get_underlying_container() const
-    {
-        return m_data;
-    }
+		base::erase(base::end() - count, base::end());
+	}
 
-protected:
-    uct m_data;
+	/**
+	 * @brief Removes an element at the specified iterator in O(1) time.
+	 *
+	 * This method swaps the element at the given iterator with the last element, then removes the last element.
+	 *
+	 * @note The user is responsible for providing a valid iterator (belonging to this container and not equal to end()).
+	 * @note The type T must be move assignable to use this method.
+	 * @note If the user is iterating over the container, the same iterator should be reused for the next iteration.
+	 *
+	 * @param it The iterator pointing to the element to remove.
+	 */
+	CONSTEXPR20 void erase_swap(base::iterator it) noexcept(std::is_nothrow_move_assignable<T>::value)
+	{
+		assert(base::begin() <= it && it < base::end());
+
+		if (it + 1 != base::end())
+		{
+			*it = std::move(base::back());
+		}
+		base::pop_back();
+	}
+
+	/**
+	 * @brief Removes a range of elements specified by iterators in O(1) time per element.
+	 *
+	 * This method swaps elements in the specified range with elements at the end of the container,
+	 * then removes the last elements.
+	 *
+	 * @note The user is responsible for providing valid iterators (belonging to this container and with last reachable
+	 *       by incrementing first - i.e. first must be before last).
+	 * @note The type T must be move assignable to use this method.
+	 * @note If the user is iterating over the container, the same first iterator should be reused for the next iteration.
+	 *
+	 * @param first The iterator pointing to the beginning of the range to remove.
+	 * @param last The iterator pointing to the end of the range to remove.
+	 */
+	CONSTEXPR20 void erase_swap(base::iterator first, base::const_iterator last) noexcept(std::is_nothrow_move_assignable<T>::value)
+	{
+		assert(base::begin() <= first && first <= last && last < base::end());
+
+		auto next_to_move = base::end() - 1;
+		auto past_last = last + 1;
+		while (first != past_last && last != next_to_move)
+		{
+			*first = std::move(*next_to_move);
+			++first;
+			--next_to_move;
+		}
+
+		if (first == past_last)
+		{
+			base::erase(++next_to_move, base::end());
+		}
+		else
+		{
+			base::erase(first, base::end());
+		}
+	}
+
 };
 
-} // namespace stc
+}
+#include "stc_utils/undefine_macros.h"
