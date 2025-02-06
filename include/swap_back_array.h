@@ -165,60 +165,62 @@ public:
 	 * @brief Removes an element at the specified iterator in O(1) time.
 	 *
 	 * This method swaps the element at the given iterator with the last element, then removes the last element.
+	 * The function returns a valid iterator to continue iteration safely.
 	 *
 	 * @note The user is responsible for providing a valid iterator (belonging to this container and not equal to end()).
 	 * @note The type T must be move assignable to use this method.
-	 * @note If the user is iterating over the container, the same iterator should be reused for the next iteration.
+	 * @note If iterating over the container, use the returned iterator to continue iteration safely.
 	 *
 	 * @param it The iterator pointing to the element to remove.
+	 * @return An iterator pointing to the next valid element, or end() if the container is empty.
 	 */
-	CONSTEXPR20 void erase_swap(base::iterator it) noexcept(std::is_nothrow_move_assignable<T>::value)
+	CONSTEXPR20 base::iterator erase_swap(base::iterator it) noexcept(std::is_nothrow_move_assignable<T>::value)
 	{
 		assert(base::begin() <= it && it < base::end());
 
 		if (it + 1 != base::end())
 		{
 			*it = std::move(base::back());
+			base::pop_back();
+			return it;
 		}
+
 		base::pop_back();
+		return base::end();
 	}
 
 	/**
 	 * @brief Removes a range of elements specified by iterators in O(1) time per element.
 	 *
 	 * This method swaps elements in the specified range with elements at the end of the container,
-	 * then removes the last elements.
+	 * then removes the last elements. The function returns a valid iterator to continue iteration safely.
 	 *
 	 * @note The user is responsible for providing valid iterators (belonging to this container and with last reachable
-	 *       by incrementing first - i.e. first must be before last).
+	 *       by incrementing first - i.e., first must be before last).
 	 * @note The type T must be move assignable to use this method.
-	 * @note If the user is iterating over the container, the same first iterator should be reused for the next iteration.
+	 * @note If iterating over the container, use the returned iterator to continue iteration safely.
 	 *
 	 * @param first The iterator pointing to the beginning of the range to remove.
 	 * @param last The iterator pointing to the end of the range to remove.
+	 * @return An iterator pointing to the next valid element, or end() if the container is empty.
 	 */
-	CONSTEXPR20 void erase_swap(base::iterator first, base::const_iterator last) noexcept(std::is_nothrow_move_assignable<T>::value)
+	CONSTEXPR20 base::iterator erase_swap(base::iterator first, base::const_iterator last) noexcept(std::is_nothrow_move_assignable<T>::value)
 	{
 		assert(base::begin() <= first && first <= last && last < base::end());
 
 		auto next_to_move = base::end() - 1;
 		auto past_last = last + 1;
-		while (first != past_last && last != next_to_move)
+		while (first != past_last && first <= next_to_move)
 		{
 			*first = std::move(*next_to_move);
 			++first;
 			--next_to_move;
 		}
 
-		if (first == past_last)
-		{
-			base::erase(++next_to_move, base::end());
-		}
-		else
-		{
-			base::erase(first, base::end());
-		}
+		base::erase(next_to_move + 1, base::end());
+		return (first < base::end()) ? first : base::end();
 	}
+
 
 };
 
