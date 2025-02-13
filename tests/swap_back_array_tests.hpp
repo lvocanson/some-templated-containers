@@ -1,5 +1,5 @@
 #pragma once
-#include "../include/swap_back_array.h"
+#include "../include/stc/swap_back_array.h"
 #include "test_element.h"
 #include "tests_framework.h"
 

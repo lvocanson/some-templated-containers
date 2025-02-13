@@ -2,7 +2,7 @@
 #include <cassert>
 #include <vector>
 
-#include "stc_utils/define_macros.h"
+#include "utils/define_macros.h"
 namespace stc
 {
 
@@ -225,4 +225,4 @@ public:
 };
 
 }
-#include "stc_utils/undefine_macros.h"
+#include "utils/undefine_macros.h"
