@@ -121,12 +121,13 @@ public:
 	 *
 	 * @param element_index The index of the element to remove.
 	 */
-	CONSTEXPR20 void erase_swap(base::size_type element_index)
+	CONSTEXPR20 void erase_swap(base::size_type element_index) noexcept(std::is_nothrow_move_assignable_v<T>)
 	{
 		assert(element_index < base::size());
 
 		if (element_index + 1 != base::size())
 		{
+			// move element if its not already the last
 			base::at(element_index) = std::move(base::back());
 		}
 		base::pop_back();
@@ -145,18 +146,30 @@ public:
 	 * @param start_index The starting index of the range to remove.
 	 * @param count The number of elements to remove.
 	 */
-	CONSTEXPR20 void erase_swap(base::size_type start_index, base::size_type count)
+	CONSTEXPR20 void erase_swap(base::size_type start_index, base::size_type count) noexcept(std::is_nothrow_move_assignable_v<T>)
 	{
 		assert(start_index + count <= base::size());
 
-		auto next_to_move = base::end() - 1;
-		const size_t past_end_index = start_index + count;
-		while (start_index != past_end_index && start_index + count != base::size())
+		if (count == 0)
+			return; // no-op
+
+		auto erase_index = base::size() - count;
+		if (start_index >= erase_index)
 		{
-			base::at(start_index) = std::move(*next_to_move);
-			++start_index;
-			--next_to_move;
+			// no need to move, range is already at the end
+			base::erase(base::end() - count, base::end());
+			return;
 		}
+
+		auto next_erased_index = start_index;
+		auto next_moved_index = base::size() - 1;
+		do
+		{
+			base::at(next_erased_index) = std::move(base::at(next_moved_index));
+			++next_erased_index;
+			--next_moved_index;
+
+		} while (next_erased_index < erase_index && erase_index <= next_moved_index);
 
 		base::erase(base::end() - count, base::end());
 	}
@@ -172,14 +185,15 @@ public:
 	 * @note If iterating over the container, use the returned iterator to continue iteration safely.
 	 *
 	 * @param it The iterator pointing to the element to remove.
-	 * @return An iterator pointing to the next valid element, or end() if the container is empty.
+	 * @return it with an updated value, or end() if it was deleted.
 	 */
-	CONSTEXPR20 base::iterator erase_swap(base::iterator it) noexcept(std::is_nothrow_move_assignable<T>::value)
+	CONSTEXPR20 base::iterator erase_swap(base::iterator it) noexcept(std::is_nothrow_move_assignable_v<T>)
 	{
 		assert(base::begin() <= it && it < base::end());
 
 		if (it + 1 != base::end())
 		{
+			// move element if its not already the last
 			*it = std::move(base::back());
 			base::pop_back();
 			return it;
@@ -190,39 +204,49 @@ public:
 	}
 
 	/**
-	 * @brief Removes a range of elements specified by iterators in O(1) time per element.
+	 * @brief Removes the elements in range [first, last) in O(1) time per element.
 	 *
-	 * This method swaps elements in the specified range with elements at the end of the container,
-	 * then removes the last elements. The function returns a valid iterator to continue iteration safely.
+	 * This method swaps the elements in the specified range with elements at the end of the container,
+	 * then removes them. The function returns a valid iterator to continue iteration safely.
 	 *
-	 * @note The user is responsible for providing valid iterators (belonging to this container and with last reachable
-	 *       by incrementing first - i.e., first must be before last).
+	 * @note The user is responsible for providing a valid range ([first, last) must be within the container).
 	 * @note The type T must be move assignable to use this method.
 	 * @note If iterating over the container, use the returned iterator to continue iteration safely.
 	 *
-	 * @param first The iterator pointing to the beginning of the range to remove.
-	 * @param last The iterator pointing to the end of the range to remove.
-	 * @return An iterator pointing to the next valid element, or end() if the container is empty.
+	 * @param first Iterator pointing to the first element to remove.
+	 * @param last Iterator pointing one past the last element to remove.
+	 * @return first with an updated value, or end() if first was deleted.
 	 */
-	CONSTEXPR20 base::iterator erase_swap(base::iterator first, base::const_iterator last) noexcept(std::is_nothrow_move_assignable<T>::value)
+	CONSTEXPR20 base::iterator erase_swap(base::iterator first, base::const_iterator last) noexcept(std::is_nothrow_move_assignable_v<T>)
 	{
-		assert(base::begin() <= first && first <= last && last < base::end());
+		assert(base::begin() <= first && first <= last && last <= base::end());
 
-		auto next_to_move = base::end() - 1;
-		auto past_last = last + 1;
-		while (first != past_last && first <= next_to_move)
+		if (first == last)
+			return first; // no-op
+
+		if (last == base::end())
 		{
-			*first = std::move(*next_to_move);
-			++first;
-			--next_to_move;
+			// no need to move, range is already at the end
+			base::erase(first, base::end());
+			return base::end();
 		}
 
-		base::erase(next_to_move + 1, base::end());
-		return (first < base::end()) ? first : base::end();
-	}
+		auto next_erased_it = first;
+		auto next_moved_it = base::end() - 1;
+		auto erase_it = base::end() - last + first;
+		do
+		{
+			*next_erased_it = std::move(*next_moved_it);
+			++next_erased_it;
+			--next_moved_it;
 
+		} while (next_erased_it < erase_it && erase_it <= next_moved_it);
+
+		base::erase(erase_it, base::end());
+		return first;
+	}
 
 };
 
-}
+} // namespace stc
 #include "utils/undefine_macros.h"

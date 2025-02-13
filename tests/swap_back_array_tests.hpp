@@ -362,7 +362,7 @@ CREATE_TEST(swap_back_array__erase_iterator_range)
 	stc::swap_back_array<size_t> erased_ids;
 
 	auto first = sba.begin();
-	auto last = sba.begin();
+	auto last = sba.begin() + 1;
 	for (auto it = first; it != last; ++it)
 		erased_ids.push_back(it->id);
 
@@ -379,7 +379,7 @@ CREATE_TEST(swap_back_array__erase_iterator_range)
 	CHECK(data.move_counter == 1);
 
 	first = sba.begin() + 2;
-	last = sba.begin() + 5;
+	last = sba.begin() + 6;
 	for (auto it = first; it != last; ++it)
 		erased_ids.push_back(it->id);
 
@@ -396,7 +396,7 @@ CREATE_TEST(swap_back_array__erase_iterator_range)
 	CHECK(data.move_counter == 5);
 
 	first = sba.begin() + 3;
-	last = sba.begin() + 12;
+	last = sba.begin() + 13;
 	for (auto it = first; it != last; ++it)
 		erased_ids.push_back(it->id);
 
@@ -420,7 +420,7 @@ CREATE_TEST(swap_back_array__erase_iterator_range_near_end)
 	stc::swap_back_array<size_t> erased_ids;
 
 	auto first = sba.end() - 2;
-	auto last = sba.end() - 2;
+	auto last = sba.end() - 1;
 	for (auto it = first; it != last; ++it)
 		erased_ids.push_back(it->id);
 
@@ -437,7 +437,7 @@ CREATE_TEST(swap_back_array__erase_iterator_range_near_end)
 	CHECK(data.move_counter == 1);
 
 	first = sba.end() - 5;
-	last = sba.end() - 2;
+	last = sba.end() - 1;
 	for (auto it = first; it != last; ++it)
 		erased_ids.push_back(it->id);
 
@@ -454,7 +454,7 @@ CREATE_TEST(swap_back_array__erase_iterator_range_near_end)
 	CHECK(data.move_counter == 2);
 
 	first = sba.end() - 11;
-	last = sba.end() - 2;
+	last = sba.end() - 1;
 	for (auto it = first; it != last; ++it)
 		erased_ids.push_back(it->id);
 
@@ -478,7 +478,7 @@ CREATE_TEST(swap_back_array__erase_iterator_range_at_end)
 	stc::swap_back_array<size_t> erased_ids;
 
 	auto first = sba.end() - 1;
-	auto last = sba.end() - 1;
+	auto last = sba.end();
 	for (auto it = first; it != last; ++it)
 		erased_ids.push_back(it->id);
 
@@ -495,7 +495,7 @@ CREATE_TEST(swap_back_array__erase_iterator_range_at_end)
 	CHECK(data.move_counter == 0);
 
 	first = sba.end() - 4;
-	last = sba.end() - 1;
+	last = sba.end();
 	for (auto it = first; it != last; ++it)
 		erased_ids.push_back(it->id);
 
@@ -512,7 +512,7 @@ CREATE_TEST(swap_back_array__erase_iterator_range_at_end)
 	CHECK(data.move_counter == 0);
 
 	first = sba.end() - 10;
-	last = sba.end() - 1;
+	last = sba.end();
 	for (auto it = first; it != last; ++it)
 		erased_ids.push_back(it->id);
 
