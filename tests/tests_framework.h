@@ -13,13 +13,18 @@ struct test
 	function_signature function;
 	const char* name;
 };
-static std::vector<test> g_tests;
+
+inline std::vector<test>& get_tests()
+{
+	static std::vector<test> tests;
+	return tests;
+}
 
 #define CREATE_TEST(name) \
 static void CONCAT(name, __LINE__)(); \
 static bool CONCAT(name, __LINE__)##_is_registered = []()\
 { \
-g_tests.push_back({CONCAT(name, __LINE__), #name});\
+get_tests().push_back({CONCAT(name, __LINE__), #name});\
 return true; \
 }(); \
 static void CONCAT(name, __LINE__)()
@@ -47,9 +52,9 @@ catch (const expected_exception&) {} \
 
 inline void execute_tests()
 {
-	std::cout << "Tests found: " << g_tests.size() << "\n\n";
+	std::cout << "Tests found: " << get_tests().size() << "\n\n";
 	size_t passed = 0;
-	for (auto& test : g_tests)
+	for (auto& test : get_tests())
 	{
 		std::cout << "Executing test `" << test.name << "`... ";
 		try
@@ -67,7 +72,7 @@ inline void execute_tests()
 			std::cout << "failed. Unknown error.\n";
 		}
 	}
-	std::cout << "\nResults: " << passed << '/' << g_tests.size() << " passed.\n";
+	std::cout << "\nResults: " << passed << '/' << get_tests().size() << " passed.\n";
 }
 
 #else // TESTS_ENABLED
