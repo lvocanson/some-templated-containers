@@ -1,0 +1,91 @@
+#pragma once
+#include <optional>
+
+namespace stc
+{
+
+/**
+ * @brief Singleton with on-demand construction/deconstruction.
+ * 
+ * This implementation mandates explicit construction of the singleton via construct_instance.
+ * If construct_instance is called multiple times, the previous instance is destructed and replaced.
+ * Manual destruction using destruct_instance is optional.
+ *
+ * @note It is recommended to use this class with the CRTP idiom to fully leverage the provided syntax.
+ *
+ * @tparam T The type of the singleton instance.
+ */
+template <typename T>
+class explicit_singleton
+{
+public:
+
+	/**
+	 * @brief Constructs the singleton instance using the provided arguments.
+	 * 
+	 * @note If an instance is already constructed, it is replaced by the new one.
+	 *
+	 * @tparam Args Parameter pack for T's constructor.
+	 * @param args Arguments forwarded to T's constructor.
+	 * @return T& Reference to the newly created singleton instance.
+	 */
+	template <typename... Args>
+	static T& construct_instance(Args&&... args)
+	{
+		return instance_.emplace(std::forward<Args>(args)...);
+	}
+
+	/**
+	 * @brief Checks whether the singleton instance has been created.
+	 *
+	 * @return bool True if the instance has been created, false otherwise.
+	 */
+	[[nodiscard]] static bool instance_constructed() noexcept
+	{
+		return instance_.has_value();
+	}
+
+	/**
+	 * @brief Retrieves the singleton instance.
+	 *
+	 * @note Calling this function before the instance has been created
+	 *       via construct_instance will throw an exception.
+	 *
+	 * @throws std::bad_optional_access if the instance has not been created.
+	 *
+	 * @return T& Reference to the singleton instance.
+	 */
+	[[nodiscard]] static T& instance()
+	{
+		return instance_.value();
+	}
+
+	/**
+	 * @brief Destroys the singleton instance.
+	 *
+	 * @note Subsequent calls to instance() without reinitialization
+	 *       via construct_instance will throw an exception.
+	 */
+	static void destruct_instance() noexcept
+	{
+		instance_.reset();
+	}
+
+protected:
+
+	// Enables construction of T.
+	explicit_singleton() = default;
+
+private:
+
+	// Disable copy and move semantics.
+	explicit_singleton(const explicit_singleton&) = delete;
+	explicit_singleton(explicit_singleton&&) = delete;
+	explicit_singleton& operator=(const explicit_singleton&) = delete;
+	explicit_singleton& operator=(explicit_singleton&&) = delete;
+
+	// The optional singleton instance.
+	static inline std::optional<T> instance_;
+};
+
+} // namespace stc
