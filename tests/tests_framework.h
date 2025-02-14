@@ -48,7 +48,7 @@ try \
 	" did not throw an exception of type `" #expected_exception\
 	"`. (" __FILE__ ":" LINE_STR ")"); \
 } \
-catch (const expected_exception&) {} \
+catch (const expected_exception&) {}
 
 inline void execute_tests()
 {

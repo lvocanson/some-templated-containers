@@ -7,7 +7,7 @@ namespace stc
  * @brief Singleton created upon the first access to its instance.
  *
  * @note It is recommended to use this class with the CRTP idiom to fully leverage the provided syntax.
- * 
+ *
  * @tparam T The type of the singleton instance.
  */
 template <typename T>

@@ -40,7 +40,7 @@ CREATE_TEST(explicit_singleton)
 	}
 
 	CHECK(singleton::instance_constructed());
-	singleton::destruct_instance();
+	singleton::deconstruct_instance();
 	TRY_EXCEPTION(auto& _ = singleton::instance(), std::bad_optional_access);
 	CHECK(not singleton::instance_constructed());
 

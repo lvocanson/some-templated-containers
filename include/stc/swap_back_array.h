@@ -22,7 +22,7 @@ class swap_back_array : public std::vector<T, Allocator>
 
 public:
 
-	// Redeclare all base constructors
+	// Redeclare all base constructors.
 	using base::base;
 
 	/**

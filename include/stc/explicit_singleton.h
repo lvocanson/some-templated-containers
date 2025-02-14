@@ -5,11 +5,11 @@ namespace stc
 {
 
 /**
- * @brief Singleton with on-demand construction/deconstruction.
- * 
+ * @brief Singleton with on-demand construction and deconstruction.
+ *
  * This implementation mandates explicit construction of the singleton via construct_instance.
- * If construct_instance is called multiple times, the previous instance is destructed and replaced.
- * Manual destruction using destruct_instance is optional.
+ * If construct_instance is called multiple times, the previous instance is deconstructed and replaced.
+ * Manual deconstruction using deconstruct_instance is optional.
  *
  * @note It is recommended to use this class with the CRTP idiom to fully leverage the provided syntax.
  *
@@ -22,12 +22,12 @@ public:
 
 	/**
 	 * @brief Constructs the singleton instance using the provided arguments.
-	 * 
+	 *
 	 * @note If an instance is already constructed, it is replaced by the new one.
 	 *
 	 * @tparam Args Parameter pack for T's constructor.
 	 * @param args Arguments forwarded to T's constructor.
-	 * @return T& Reference to the newly created singleton instance.
+	 * @return T& Reference to the newly constructed singleton instance.
 	 */
 	template <typename... Args>
 	static T& construct_instance(Args&&... args)
@@ -36,9 +36,9 @@ public:
 	}
 
 	/**
-	 * @brief Checks whether the singleton instance has been created.
+	 * @brief Checks whether the singleton instance has been constructed.
 	 *
-	 * @return bool True if the instance has been created, false otherwise.
+	 * @return bool True if the instance has been constructed, false otherwise.
 	 */
 	[[nodiscard]] static bool instance_constructed() noexcept
 	{
@@ -48,10 +48,10 @@ public:
 	/**
 	 * @brief Retrieves the singleton instance.
 	 *
-	 * @note Calling this function before the instance has been created
+	 * @note Calling this function before the instance has been constructed
 	 *       via construct_instance will throw an exception.
 	 *
-	 * @throws std::bad_optional_access if the instance has not been created.
+	 * @throws std::bad_optional_access if the instance has not been constructed.
 	 *
 	 * @return T& Reference to the singleton instance.
 	 */
@@ -61,12 +61,12 @@ public:
 	}
 
 	/**
-	 * @brief Destroys the singleton instance.
+	 * @brief Deconstructs the singleton instance.
 	 *
 	 * @note Subsequent calls to instance() without reinitialization
 	 *       via construct_instance will throw an exception.
 	 */
-	static void destruct_instance() noexcept
+	static void deconstruct_instance() noexcept
 	{
 		instance_.reset();
 	}
