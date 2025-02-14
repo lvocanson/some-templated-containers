@@ -2,7 +2,6 @@
 #include <cassert>
 #include <vector>
 
-#include "utils/define_macros.h"
 namespace stc
 {
 
@@ -31,28 +30,28 @@ public:
 	 *
 	 * @param other The std::vector to copy from.
 	 */
-	CONSTEXPR20 swap_back_array(const base& other) : base(other) {}
+	constexpr swap_back_array(const base& other) : base(other) {}
 
 	/**
 	 * @brief Constructs a swap_back_array by moving an existing std::vector.
 	 *
 	 * @param other The std::vector to move from.
 	 */
-	CONSTEXPR20 swap_back_array(base&& other) NOEXCEPT17 : base(std::move(other)) {}
+	constexpr swap_back_array(base&& other) noexcept : base(std::move(other)) {}
 
 	/**
 	 * @brief Constructs a swap_back_array from another swap_back_array.
 	 *
 	 * @param other The swap_back_array to copy from.
 	 */
-	CONSTEXPR20 swap_back_array(const swap_back_array& other) = default;
+	constexpr swap_back_array(const swap_back_array& other) = default;
 
 	/**
 	 * @brief Constructs a swap_back_array by moving another swap_back_array.
 	 *
 	 * @param other The swap_back_array to move from.
 	 */
-	CONSTEXPR20 swap_back_array(swap_back_array&& other) NOEXCEPT17 = default;
+	constexpr swap_back_array(swap_back_array&& other) noexcept = default;
 
 	/**
 	 * @brief Copy assignment operator from an std::vector.
@@ -60,7 +59,7 @@ public:
 	 * @param other The std::vector to copy from.
 	 * @return Reference to this swap_back_array.
 	 */
-	CONSTEXPR20 swap_back_array& operator=(const base& other)
+	constexpr swap_back_array& operator=(const base& other)
 	{
 		base::operator=(other);
 		return *this;
@@ -72,9 +71,9 @@ public:
 	 * @param other The std::vector to move from.
 	 * @return Reference to this swap_back_array.
 	 */
-	swap_back_array& operator=(base&& other) IF_CPP17(noexcept(
+	swap_back_array& operator=(base&& other) noexcept(
 		std::allocator_traits<Allocator>::propagate_on_container_move_assignment::value ||
-		std::allocator_traits<Allocator>::is_always_equal::value))
+		std::allocator_traits<Allocator>::is_always_equal::value)
 	{
 		base::operator=(std::move(other));
 		return *this;
@@ -86,7 +85,7 @@ public:
 	 * @param other The swap_back_array to copy from.
 	 * @return Reference to this swap_back_array.
 	 */
-	CONSTEXPR20 swap_back_array& operator=(const swap_back_array& other) = default;
+	constexpr swap_back_array& operator=(const swap_back_array& other) = default;
 
 	/**
 	 * @brief Move assignment operator from another swap_back_array.
@@ -94,9 +93,9 @@ public:
 	 * @param other The swap_back_array to move from.
 	 * @return Reference to this swap_back_array.
 	 */
-	swap_back_array& operator=(swap_back_array&& other) IF_CPP17(noexcept(
+	swap_back_array& operator=(swap_back_array&& other) noexcept(
 		std::allocator_traits<Allocator>::propagate_on_container_move_assignment::value ||
-		std::allocator_traits<Allocator>::is_always_equal::value)) = default;
+		std::allocator_traits<Allocator>::is_always_equal::value) = default;
 
 	/**
 	 * @brief Assigns the contents of an initializer list to the swap_back_array.
@@ -104,7 +103,7 @@ public:
 	 * @param ilist The initializer list to assign from.
 	 * @return Reference to this swap_back_array.
 	 */
-	CONSTEXPR20 swap_back_array& operator=(std::initializer_list<T> ilist)
+	constexpr swap_back_array& operator=(std::initializer_list<T> ilist)
 	{
 		base::operator=(ilist);
 		return *this;
@@ -121,7 +120,7 @@ public:
 	 *
 	 * @param element_index The index of the element to remove.
 	 */
-	CONSTEXPR20 void erase_swap(base::size_type element_index) noexcept(std::is_nothrow_move_assignable_v<T>)
+	constexpr void erase_swap(base::size_type element_index) noexcept(std::is_nothrow_move_assignable_v<T>)
 	{
 		assert(element_index < base::size());
 
@@ -146,7 +145,7 @@ public:
 	 * @param start_index The starting index of the range to remove.
 	 * @param count The number of elements to remove.
 	 */
-	CONSTEXPR20 void erase_swap(base::size_type start_index, base::size_type count) noexcept(std::is_nothrow_move_assignable_v<T>)
+	constexpr void erase_swap(base::size_type start_index, base::size_type count) noexcept(std::is_nothrow_move_assignable_v<T>)
 	{
 		assert(start_index + count <= base::size());
 
@@ -187,7 +186,7 @@ public:
 	 * @param it The iterator pointing to the element to remove.
 	 * @return it with an updated value, or end() if it was deleted.
 	 */
-	CONSTEXPR20 base::iterator erase_swap(base::iterator it) noexcept(std::is_nothrow_move_assignable_v<T>)
+	constexpr base::iterator erase_swap(base::iterator it) noexcept(std::is_nothrow_move_assignable_v<T>)
 	{
 		assert(base::begin() <= it && it < base::end());
 
@@ -217,7 +216,7 @@ public:
 	 * @param last Iterator pointing one past the last element to remove.
 	 * @return first with an updated value, or end() if first was deleted.
 	 */
-	CONSTEXPR20 base::iterator erase_swap(base::iterator first, base::const_iterator last) noexcept(std::is_nothrow_move_assignable_v<T>)
+	constexpr base::iterator erase_swap(base::iterator first, base::const_iterator last) noexcept(std::is_nothrow_move_assignable_v<T>)
 	{
 		assert(base::begin() <= first && first <= last && last <= base::end());
 
@@ -249,4 +248,3 @@ public:
 };
 
 } // namespace stc
-#include "utils/undefine_macros.h"
