@@ -33,22 +33,47 @@ static void CONCAT(name, __LINE__)()
 #define LINE_STR_IMPL(line) LINE_STR_IMPL_IMPL(line)
 #define LINE_STR LINE_STR_IMPL(__LINE__)
 
+struct check_failed_exception
+{
+	const char* condition;
+	const char* file;
+	const char* line;
+};
+
 #define CHECK(condition) \
 if (!(condition)) \
 { \
-	throw std::exception("The condition `" #condition "` did"\
-	" not evaluate to true. (" __FILE__ ":" LINE_STR ")");\
+	throw check_failed_exception{#condition, __FILE__, LINE_STR}; \
 }
 
-#define TRY_EXCEPTION(function_call, expected_exception)\
+struct try_exception_failed_exception
+{
+	const char* function_call;
+	const char* expected;
+	const char* file;
+	const char* line;
+};
+
+struct try_exception_wrong_exception
+{
+	const char* function_call;
+	const char* expected;
+	const char* got;
+	const char* file;
+	const char* line;
+};
+
+#define TRY_EXCEPTION(function_call, expected_exception) \
 try \
 { \
 	function_call; \
-	throw std::exception("The function call `" #function_call\
-	" did not throw an exception of type `" #expected_exception\
-	"`. (" __FILE__ ":" LINE_STR ")"); \
+	throw try_exception_failed_exception{#function_call, #expected_exception, __FILE__, LINE_STR}; \
 } \
-catch (const expected_exception&) {}
+catch (const expected_exception&) {} \
+catch (const std::exception& e) \
+{ \
+	throw try_exception_wrong_exception{#function_call, #expected_exception, e.what(), __FILE__, LINE_STR}; \
+}
 
 inline void execute_tests()
 {
@@ -56,20 +81,41 @@ inline void execute_tests()
 	size_t passed = 0;
 	for (auto& test : get_tests())
 	{
-		std::cout << "Executing test `" << test.name << "`... ";
+		std::cout << "Testing `" << test.name << "`... ";
 		try
 		{
 			test.function();
-			std::cout << "passed.\n";
+			std::cout << "OK.\n";
 			++passed;
 		}
-		catch (const std::exception& e)
+		catch (const check_failed_exception& e)
 		{
-			std::cout << "failed. Exception: " << e.what() << '\n';
+			std::cout
+				<< "\n> CHECK failed: " << e.condition
+				<< "\n> At line: " << e.line
+				<< "\n> Of file: " << e.file << '\n';
+		}
+		catch (const try_exception_failed_exception& e)
+		{
+			std::cout
+				<< "\n> TRY_EXCEPTION failed: " << e.function_call
+				<< "\n> Did not throw."
+				<< "\n> Expected: " << e.expected
+				<< "\n> At line: " << e.line
+				<< "\n> Of file: " << e.file << '\n';
+		}
+		catch (const try_exception_wrong_exception& e)
+		{
+			std::cout
+				<< "\n> TRY_EXCEPTION failed: " << e.function_call
+				<< "\n> Threw: " << e.got
+				<< "\n> Expected: " << e.expected
+				<< "\n> At line: " << e.line
+				<< "\n> Of file: " << e.file << '\n';
 		}
 		catch (...)
 		{
-			std::cout << "failed. Unknown error.\n";
+			std::cout << "\n> Failed. Unknown error.\n";
 		}
 	}
 	std::cout << "\nResults: " << passed << '/' << get_tests().size() << " passed.\n";
