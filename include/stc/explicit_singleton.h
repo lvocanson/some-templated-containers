@@ -85,7 +85,11 @@ private:
 	explicit_singleton& operator=(explicit_singleton&&) = delete;
 
 	// The optional singleton instance.
-	static inline std::optional<T> instance_;
+	static std::optional<T> instance_;
 };
+
+// Definition after the class, once T is fully known
+template <typename T>
+inline std::optional<T> explicit_singleton<T>::instance_;
 
 } // namespace stc

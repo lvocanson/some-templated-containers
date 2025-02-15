@@ -43,7 +43,11 @@ private:
 	eager_singleton& operator=(eager_singleton&&) = delete;
 
 	// The eagerly instantiated singleton instance.
-	static inline T instance_;
+	static T instance_;
 };
+
+// Definition after the class, once T is fully known
+template <typename T>
+T stc::eager_singleton<T>::instance_;
 
 } // namespace stc
