@@ -6,9 +6,9 @@ namespace stc
 {
 
 /**
- * @brief Extension of std::vector for fast O(1) removal at any index.
+ * @brief An extension of std::vector providing fast O(1) removal at any index.
  *
- * This class inherits from std::vector and adds the ability to remove an element in O(1) by swapping
+ * This class inherits from std::vector and adds the ability to remove an element in O(1) time by swapping
  * it with the last element before removal. This operation sacrifices the order of elements as a trade-off
  * for improved performance.
  *
@@ -114,23 +114,13 @@ public:
 	 *
 	 * This method swaps the element at the given index with the last element, then removes the last element.
 	 *
-	 * @note The user is responsible for providing a valid index.
-	 * @note The type T must be move assignable to use this method.
-	 * @note If the user is iterating over the container, the same index should be reused for the next iteration.
+	 * @note The user must provide a valid index.
+	 * @note The type T must be move-assignable in order to use this method.
+	 * @note If the user is iterating over the container, the same index should be reused for the next iteration after each removal.
 	 *
 	 * @param element_index The index of the element to remove.
 	 */
-	constexpr void erase_swap(base::size_type element_index) noexcept(std::is_nothrow_move_assignable_v<T>)
-	{
-		assert(element_index < base::size());
-
-		if (element_index + 1 != base::size())
-		{
-			// move element if its not already the last
-			base::at(element_index) = std::move(base::back());
-		}
-		base::pop_back();
-	}
+	constexpr void erase_swap(base::size_type element_index) noexcept(std::is_nothrow_move_assignable_v<T>);
 
 	/**
 	 * @brief Removes a range of elements starting from the specified index in O(1) time per element.
@@ -138,113 +128,47 @@ public:
 	 * This method swaps elements in the specified range with elements at the end of the container,
 	 * then removes the last elements.
 	 *
-	 * @note The user is responsible for providing a valid range (start_index + count <= container.size()).
-	 * @note The type T must be move assignable to use this method.
-	 * @note If the user is iterating over the container, the same start_index should be reused for the next iteration.
+	 * @note The user must provide a valid range (start_index + count <= container.size()).
+	 * @note The type T must be move-assignable in order to use this method.
 	 *
 	 * @param start_index The starting index of the range to remove.
 	 * @param count The number of elements to remove.
 	 */
-	constexpr void erase_swap(base::size_type start_index, base::size_type count) noexcept(std::is_nothrow_move_assignable_v<T>)
-	{
-		assert(start_index + count <= base::size());
-
-		if (count == 0)
-			return; // no-op
-
-		auto erase_index = base::size() - count;
-		if (start_index >= erase_index)
-		{
-			// no need to move, range is already at the end
-			base::erase(base::end() - count, base::end());
-			return;
-		}
-
-		auto next_erased_index = start_index;
-		auto next_moved_index = base::size() - 1;
-		do
-		{
-			base::at(next_erased_index) = std::move(base::at(next_moved_index));
-			++next_erased_index;
-			--next_moved_index;
-
-		} while (next_erased_index < erase_index && erase_index <= next_moved_index);
-
-		base::erase(base::end() - count, base::end());
-	}
+	constexpr void erase_swap(base::size_type start_index, base::size_type count) noexcept(std::is_nothrow_move_assignable_v<T>);
 
 	/**
 	 * @brief Removes an element at the specified iterator in O(1) time.
 	 *
 	 * This method swaps the element at the given iterator with the last element, then removes the last element.
-	 * The function returns a valid iterator to continue iteration safely.
+	 * The method returns a valid iterator, allowing safe continuation of iteration.
 	 *
-	 * @note The user is responsible for providing a valid iterator (belonging to this container and not equal to end()).
-	 * @note The type T must be move assignable to use this method.
-	 * @note If iterating over the container, use the returned iterator to continue iteration safely.
+	 * @note The user must provide a valid iterator (belonging to this container and not equal to end()).
+	 * @note The type T must be move-assignable in order to use this method.
+	 * @note If iterating over the container, use the returned iterator to safely continue iteration.
 	 *
 	 * @param it The iterator pointing to the element to remove.
 	 * @return it with an updated value, or end() if it was deleted.
 	 */
-	constexpr base::iterator erase_swap(base::iterator it) noexcept(std::is_nothrow_move_assignable_v<T>)
-	{
-		assert(base::begin() <= it && it < base::end());
-
-		if (it + 1 != base::end())
-		{
-			// move element if its not already the last
-			*it = std::move(base::back());
-			base::pop_back();
-			return it;
-		}
-
-		base::pop_back();
-		return base::end();
-	}
+	constexpr base::iterator erase_swap(base::iterator it) noexcept(std::is_nothrow_move_assignable_v<T>);
 
 	/**
 	 * @brief Removes the elements in range [first, last) in O(1) time per element.
 	 *
 	 * This method swaps the elements in the specified range with elements at the end of the container,
-	 * then removes them. The function returns a valid iterator to continue iteration safely.
+	 * then removes them. The method returns a valid iterator, allowing safe continuation of iteration.
 	 *
 	 * @note The user is responsible for providing a valid range ([first, last) must be within the container).
-	 * @note The type T must be move assignable to use this method.
-	 * @note If iterating over the container, use the returned iterator to continue iteration safely.
+	 * @note The type T must be move-assignable in order to use this method.
+	 * @note If iterating over the container, use the returned iterator to safely continue iteration.
 	 *
 	 * @param first Iterator pointing to the first element to remove.
 	 * @param last Iterator pointing one past the last element to remove.
 	 * @return first with an updated value, or end() if first was deleted.
 	 */
-	constexpr base::iterator erase_swap(base::iterator first, base::const_iterator last) noexcept(std::is_nothrow_move_assignable_v<T>)
-	{
-		assert(base::begin() <= first && first <= last && last <= base::end());
-
-		if (first == last)
-			return first; // no-op
-
-		if (last == base::end())
-		{
-			// no need to move, range is already at the end
-			base::erase(first, base::end());
-			return base::end();
-		}
-
-		auto next_erased_it = first;
-		auto next_moved_it = base::end() - 1;
-		auto erase_it = base::end() - last + first;
-		do
-		{
-			*next_erased_it = std::move(*next_moved_it);
-			++next_erased_it;
-			--next_moved_it;
-
-		} while (next_erased_it < erase_it && erase_it <= next_moved_it);
-
-		base::erase(erase_it, base::end());
-		return first;
-	}
+	constexpr base::iterator erase_swap(base::iterator first, base::const_iterator last) noexcept(std::is_nothrow_move_assignable_v<T>);
 
 };
 
 } // namespace stc
+
+#include "../src/swap_back_array.inl"

@@ -63,7 +63,7 @@ public:
 	/**
 	 * @brief Deconstructs the singleton instance.
 	 *
-	 * @note Subsequent calls to instance() without reinitialization
+	 * @note Subsequent calls to instance() without re-initializing
 	 *       via construct_instance will throw an exception.
 	 */
 	static void deconstruct_instance() noexcept

@@ -5,8 +5,8 @@
  * @file
  * @brief Extends the functionality of enum classes, particularly those used as flags.
  *
- * This utility enables bitwise and arithmetic operations on scoped enumerations (enum class)
- * by allowing seamless interaction with their underlying type.
+ * This utility enables bitwise and arithmetic operations on scoped enumerations (enum class),
+ * allowing seamless interaction with their underlying type.
  */
 
 namespace stc
@@ -50,9 +50,7 @@ template <stc::enumeration T> constexpr T operator--(T& value, int);
 // Computes the difference between the values of lhs and rhs
 template <stc::enumeration T> constexpr std::underlying_type_t<T> operator-(T lhs, T rhs);
 
-// Return true if (lhs & rhs) != 0
+// Returns true if there is at least one bit in common between lhs and rhs
 template <stc::enumeration T> constexpr bool operator&&(T lhs, T rhs);
-
-
 
 #include "../../src/enum_operators.inl"
