@@ -1,4 +1,3 @@
-#pragma once
 #include "../include/stc/eager_singleton.h"
 #include "../include/stc/explicit_singleton.h"
 #include "../include/stc/lazy_singleton.h"
