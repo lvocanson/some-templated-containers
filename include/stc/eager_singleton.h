@@ -48,6 +48,6 @@ private:
 
 // Definition after the class, once T is fully known
 template <typename T>
-T stc::eager_singleton<T>::instance_;
+T eager_singleton<T>::instance_;
 
 } // namespace stc
