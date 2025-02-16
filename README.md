@@ -1,6 +1,6 @@
 # some-templated-containers
 
-**some-templated-containers** is a **header-only C++ library** that extends the standard library with additional container and utility features. It provides:
+**some-templated-containers** is a **header-only C++20 library** that extends the standard library with additional container and utility features. It provides:
 
 - A `std::vector` extension for **fast O(1) removal**.
 - Three **singleton implementations** (Lazy, Eager, and Explicit).
