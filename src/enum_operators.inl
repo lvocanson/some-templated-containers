@@ -1,6 +1,9 @@
 #pragma once
 #include "../include/stc/enum_operators.h"
 
+inline namespace stci
+{
+
 template <stc::enumeration T>
 inline constexpr T operator|(T lhs, T rhs)
 {
@@ -113,3 +116,5 @@ inline constexpr bool operator&&(T lhs, T rhs)
 {
 	return (lhs & rhs) != T(0);
 }
+
+} // namespace stc

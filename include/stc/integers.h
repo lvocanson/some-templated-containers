@@ -1,7 +1,7 @@
 #pragma once
 #include <cstdint>
 
-inline namespace stc
+inline namespace stci
 {
 
 /**

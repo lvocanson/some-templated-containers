@@ -21,6 +21,9 @@ concept enumeration = std::is_enum_v<T>;
 
 } // namespace stc
 
+inline namespace stci
+{
+
 /// Arithmetic
 
 template <stc::enumeration T> constexpr T operator|(T lhs, T rhs);
@@ -52,5 +55,7 @@ template <stc::enumeration T> constexpr std::underlying_type_t<T> operator-(T lh
 
 // Returns true if there is at least one bit in common between lhs and rhs
 template <stc::enumeration T> constexpr bool operator&&(T lhs, T rhs);
+
+} // namespace stc
 
 #include "../../src/enum_operators.inl"
