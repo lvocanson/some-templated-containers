@@ -135,7 +135,7 @@ public:
 
 		sort(results_.begin(), results_.end(), [&](const result& a, const result& b)
 		{
-			title_width = max(a.name.size(), title_width);
+			title_width = max({a.name.size(), b.name.size(), title_width});
 			return (iterations_)
 				? a.time < b.time
 				: a.iterations > b.iterations;
