@@ -54,68 +54,58 @@ int main()
 	data.resize(10, -1);
 	PrintSBA(data);
 
-	std::random_device rd;
-	std::mt19937 gen(rd());
-	std::uniform_int_distribution<fast::int16> dist;
 
-	std::vector<fast::int16> vec_comp;
-	stc::swap_back_array<fast::int16> sba_comp;
+	std::cout << "\nSpeed comparison:\n\n";
 
-	constexpr size_t num_size = 1'000;
-	fast::int16 numbers[num_size];
-	for (size_t i = 0; i < num_size; ++i)
+	std::vector<size_t> vec_comp;
+	stc::swap_back_array<size_t> sba_comp;
+
+	auto emplace_vec = [&](size_t i)
 	{
-		numbers[i] = dist(gen);
-	}
-
-	auto emplace_vec = [&]()
-	{
-		for (size_t i = 0; i < num_size; ++i)
-		{
-			vec_comp.emplace_back(numbers[i]);
-		}
+		vec_comp.emplace_back(i);
 	};
 
-	auto emplace_sba = [&]()
+	auto emplace_sba = [&](size_t i)
 	{
-		for (size_t i = 0; i < num_size; ++i)
-		{
-			sba_comp.emplace_back(numbers[i]);
-		}
+		sba_comp.emplace_back(i);
 	};
 
-	auto erase_vec = [&]()
+	auto erase_vec = [&](size_t i)
 	{
 		for (auto it = vec_comp.begin(); it != vec_comp.end();)
 		{
-			if (*it % 2 == 0)
+			if (*it == i)
 				it = vec_comp.erase(it);
 			else
 				++it;
 		}
 	};
 
-	auto erase_sba = [&]()
+	auto erase_sba = [&](size_t i)
 	{
 		for (auto it = sba_comp.begin(); it != sba_comp.end();)
 		{
-			if (*it % 2 == 0)
+			if (*it == i)
 				it = sba_comp.erase_swap(it);
 			else
 				++it;
 		}
 	};
 
-	std::cout << "\nSpeed comparison:\n\n";
-
-	compare_benchmarks(100,
-		std::make_pair<std::string_view>("Emplace vector", emplace_vec),
-		std::make_pair<std::string_view>("Emplace SBA", emplace_sba)
-	);
+	// The order of execution matters. SBA's emplace is inherited
+	// from vector, the speed should be the same.
+	benchmark(100'000)
+		.add("Emplace SBA", emplace_sba)
+		.add("Emplace vector", emplace_vec)
+		.add("Emplace SBA 2", emplace_sba)
+		.add("Emplace vector 2", emplace_vec)
+		.print_results();
 
 	std::cout << '\n';
 
-	compare_benchmarks(100,
-		std::make_pair<std::string_view>("Erase vector", erase_vec),
-		std::make_pair<std::string_view>("Erase SBA", erase_sba));
+	// two elements to remove per iteration
+	benchmark(100'000)
+		.add("Erase SBA", erase_sba)
+		.add("Erase vector", erase_vec)
+		.print_results();
 }
