@@ -1,15 +1,16 @@
 #pragma once
-#include <optional>
+#include <cassert>
+#include <type_traits>
 
 namespace stc
 {
 
 /**
- * @brief Singleton with on-demand construction and deconstruction.
+ * @brief Singleton with on-demand construction and destruction.
  *
  * This implementation mandates explicit construction of the singleton via construct_instance.
- * If construct_instance is called multiple times, the previous instance is deconstructed and replaced.
- * Manual deconstruction using deconstruct_instance is optional.
+ * If construct_instance is called multiple times, the previous instance is destructed and replaced.
+ * Manual destruction using destruct_instance is optional.
  *
  * @note It is recommended to use this class with the CRTP idiom to fully leverage the provided syntax.
  *
@@ -32,7 +33,11 @@ public:
 	template <typename... Args>
 	static T& construct_instance(Args&&... args)
 	{
-		return instance_.emplace(std::forward<Args>(args)...);
+		if (constructed_)
+			storage_.instance_.~T();
+		new (&storage_.instance_) T(std::forward<Args>(args)...);
+		constructed_ = true;
+		return storage_.instance_;
 	}
 
 	/**
@@ -42,33 +47,34 @@ public:
 	 */
 	[[nodiscard]] static bool instance_constructed() noexcept
 	{
-		return instance_.has_value();
+		return constructed_;
 	}
 
 	/**
 	 * @brief Retrieves the singleton instance.
 	 *
-	 * @note Calling this function before the instance has been constructed
-	 *       via construct_instance will throw an exception.
-	 *
-	 * @throws std::bad_optional_access if the instance has not been constructed.
+	 * @note Calling this function before the instance has been constructed is undefined behavior.
 	 *
 	 * @return T& Reference to the singleton instance.
 	 */
 	[[nodiscard]] static T& instance()
 	{
-		return instance_.value();
+		assert(constructed_ && "Accessing uninitialized singleton instance.");
+		return storage_.instance_;
 	}
 
 	/**
-	 * @brief Deconstructs the singleton instance.
+	 * @brief Destructs the singleton instance.
 	 *
-	 * @note Subsequent calls to instance() without re-initializing
-	 *       via construct_instance will throw an exception.
+	 * @note Subsequent calls to instance() without re-initializing is undefined behavior.
 	 */
-	static void deconstruct_instance() noexcept
+	static void destruct_instance() noexcept
 	{
-		instance_.reset();
+		if (constructed_)
+		{
+			storage_.instance_.~T();
+			constructed_ = false;
+		}
 	}
 
 protected:
@@ -84,12 +90,20 @@ private:
 	explicit_singleton& operator=(const explicit_singleton&) = delete;
 	explicit_singleton& operator=(explicit_singleton&&) = delete;
 
-	// The optional singleton instance.
-	static std::optional<T> instance_;
+	union storage
+	{
+		storage() { /* Leave instance_ uninitialized. */ };
+		~storage() { destruct_instance(); }
+
+		T instance_;
+	};
+	
+	static storage storage_;
+	static inline bool constructed_ = false;
 };
 
-// Definition after the class, once T is fully known
+// Definition after the class, once T is fully known.
 template <typename T>
-inline std::optional<T> explicit_singleton<T>::instance_;
+inline explicit_singleton<T>::storage explicit_singleton<T>::storage_;
 
 } // namespace stc
