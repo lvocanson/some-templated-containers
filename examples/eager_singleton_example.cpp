@@ -6,7 +6,7 @@ class MyEagerSingleton : public stc::eager_singleton<MyEagerSingleton>
 {
 	// The line below allows the construction of MyEagerSingleton even if the constructor is private.
 	// A private constructor is recommended to prevent any other instances of the class.
-	friend eager_singleton<MyEagerSingleton>;
+	friend eager_singleton;
 
 	MyEagerSingleton()
 	{

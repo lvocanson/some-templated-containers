@@ -46,8 +46,8 @@ private:
 	static T instance_;
 };
 
-// Definition after the class, once T is fully known
+// Definition after the class, once T is fully known.
 template <typename T>
-T eager_singleton<T>::instance_;
+inline T eager_singleton<T>::instance_;
 
 } // namespace stc

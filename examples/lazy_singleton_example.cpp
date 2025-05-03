@@ -6,7 +6,7 @@ class MyLazySingleton : public stc::lazy_singleton<MyLazySingleton>
 {
 	// The line below allows the construction of MyLazySingleton even if the constructor is private.
 	// A private constructor is recommended to prevent any other instances of the class.
-	friend lazy_singleton<MyLazySingleton>;
+	friend lazy_singleton;
 
 	MyLazySingleton()
 	{

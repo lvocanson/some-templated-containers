@@ -22,9 +22,9 @@ inline std::vector<test>& get_tests()
 
 #define CREATE_TEST(name) \
 static void CONCAT(name, __LINE__)(); \
-static bool CONCAT(name, __LINE__)##_is_registered = []()\
+static volatile bool CONCAT(name, __LINE__)##_is_registered = []() \
 { \
-get_tests().push_back({CONCAT(name, __LINE__), #name});\
+get_tests().push_back({CONCAT(name, __LINE__), #name}); \
 return true; \
 }(); \
 static void CONCAT(name, __LINE__)()
