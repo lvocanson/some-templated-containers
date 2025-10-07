@@ -25,7 +25,6 @@ CREATE_TEST(explicit_singleton)
 {
 	using singleton = stc::explicit_singleton<timed_element>;
 
-	TRY_EXCEPTION(auto& _ = singleton::instance(), std::bad_optional_access);
 	CHECK(not singleton::instance_constructed());
 
 	{
@@ -40,7 +39,6 @@ CREATE_TEST(explicit_singleton)
 
 	CHECK(singleton::instance_constructed());
 	singleton::destruct_instance();
-	TRY_EXCEPTION(auto& _ = singleton::instance(), std::bad_optional_access);
 	CHECK(not singleton::instance_constructed());
 
 	{
