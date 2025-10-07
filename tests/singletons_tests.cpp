@@ -17,7 +17,7 @@ struct counted_element
 	std::size_t count = next_count();
 };
 
-}
+} // namespace
 
 CREATE_TEST(eager_singleton)
 {

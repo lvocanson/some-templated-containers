@@ -1,6 +1,6 @@
 #pragma once
 #include <cassert>
-#include <type_traits>
+#include <new>
 
 namespace stc
 {
