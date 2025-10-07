@@ -5,8 +5,6 @@
 #define CONCAT_IMPL(x, y) x##y
 #define CONCAT(x, y) CONCAT_IMPL(x, y)
 
-#ifdef TESTS_ENABLED
-
 typedef void (*function_signature)();
 struct test
 {
@@ -120,12 +118,3 @@ inline void execute_tests()
 	}
 	std::cout << "\nResults: " << passed << '/' << get_tests().size() << " passed.\n";
 }
-
-#else // TESTS_ENABLED
-
-#define CREATE_TEST(name) static void CONCAT(name, __LINE__)()
-#define CHECK(condition)
-#define TRY_EXCEPTION(function_call, expected_exception)
-inline void execute_tests() {}
-
-#endif // TESTS_ENABLED

@@ -76,14 +76,18 @@ This library extends `enum class` (particularly bit flags) by enabling **seamles
 ## Building
 
 - As a header-only library, no compilation is needed for usage.
-- Simply add the `include/` folder to your compiler’s include paths.
+- Simply add the `include/` directory to your compiler's include paths.
+- The library can be built with **CMake** mainly for running the tests, but this is **not required** for using the library itself.
 
 ---
 
 ## Testing
 
-- The testing framework is in `tests/`.
-- To run tests, compile `tests/main.cpp` with the `TESTS_ENABLED` macro defined along with the specific test file for the component you wish to test (e.g. for swap_back_array, compile both `tests/main.cpp` and `tests/swap_back_array_tests.cpp`).
+- Testing is done using **CTest**, included in **CMake**.
+- The testing framework and all test files are in the `tests/` directory.
+
+> :bulb: **Info**  
+> No additional compilation flags or macros are required.
 
 ---
 
