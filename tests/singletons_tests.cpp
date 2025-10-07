@@ -2,20 +2,30 @@
 #include "../include/stc/explicit_singleton.h"
 #include "../include/stc/lazy_singleton.h"
 #include "tests_framework.h"
-#include <chrono>
 
-struct timed_element
+namespace
 {
-	std::chrono::high_resolution_clock::time_point creation_time = std::chrono::high_resolution_clock::now();
+
+std::size_t next_count()
+{
+	static std::size_t global_count = 0;
+	return global_count++;
+}
+
+struct counted_element
+{
+	std::size_t count = next_count();
 };
+
+}
 
 CREATE_TEST(eager_singleton)
 {
-	using singleton = stc::eager_singleton<timed_element>;
+	using singleton = stc::eager_singleton<counted_element>;
 
-	auto now = std::chrono::high_resolution_clock::now();
+	counted_element before;
 	auto& elem = singleton::instance();
-	CHECK(elem.creation_time < now);
+	CHECK(elem.count < before.count);
 
 	auto& elem2 = singleton::instance();
 	CHECK(std::addressof(elem) == std::addressof(elem2));
@@ -23,15 +33,16 @@ CREATE_TEST(eager_singleton)
 
 CREATE_TEST(explicit_singleton)
 {
-	using singleton = stc::explicit_singleton<timed_element>;
+	using singleton = stc::explicit_singleton<counted_element>;
 
 	CHECK(not singleton::instance_constructed());
 
 	{
-		auto now = std::chrono::high_resolution_clock::now();
+		counted_element before;
 		auto& elem = singleton::construct_instance();
+		counted_element after;
 		CHECK(singleton::instance_constructed());
-		CHECK(elem.creation_time > now);
+		CHECK(before.count < elem.count && elem.count < after.count);
 
 		auto& elem2 = singleton::instance();
 		CHECK(std::addressof(elem) == std::addressof(elem2));
@@ -42,9 +53,10 @@ CREATE_TEST(explicit_singleton)
 	CHECK(not singleton::instance_constructed());
 
 	{
-		auto now = std::chrono::high_resolution_clock::now();
+		counted_element before;
 		auto& elem = singleton::construct_instance();
-		CHECK(elem.creation_time > now);
+		counted_element after;
+		CHECK(before.count < elem.count && elem.count < after.count);
 		CHECK(singleton::instance_constructed());
 
 		auto& elem2 = singleton::instance();
@@ -54,11 +66,12 @@ CREATE_TEST(explicit_singleton)
 
 CREATE_TEST(lazy_singleton)
 {
-	using singleton = stc::lazy_singleton<timed_element>;
+	using singleton = stc::lazy_singleton<counted_element>;
 
-	auto now = std::chrono::high_resolution_clock::now();
+	counted_element before;
 	auto& elem = singleton::instance();
-	CHECK(elem.creation_time > now);
+	counted_element after;
+	CHECK(before.count < elem.count && elem.count < after.count);
 
 	auto& elem2 = singleton::instance();
 	CHECK(std::addressof(elem) == std::addressof(elem2));
