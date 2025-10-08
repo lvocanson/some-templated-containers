@@ -9,7 +9,7 @@ struct test_element_data
 	size_t dtor_counter = 0;
 };
 
-std::ostream& operator<<(std::ostream& os, const test_element_data& data)
+inline std::ostream& operator<<(std::ostream& os, const test_element_data& data)
 {
 	os << "Ctor Counter : " << data.ctor_counter
 		<< ", Copy Counter: " << data.copy_counter

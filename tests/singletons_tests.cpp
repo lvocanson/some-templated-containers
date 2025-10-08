@@ -1,6 +1,6 @@
-#include "../include/stc/eager_singleton.h"
-#include "../include/stc/explicit_singleton.h"
-#include "../include/stc/lazy_singleton.h"
+#include "stc/eager_singleton.h"
+#include "stc/explicit_singleton.h"
+#include "stc/lazy_singleton.h"
 #include "tests_framework.h"
 
 namespace

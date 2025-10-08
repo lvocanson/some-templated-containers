@@ -1,4 +1,4 @@
-#include "../include/stc/swap_back_array.h"
+#include "stc/swap_back_array.h"
 #include "test_element.h"
 #include "tests_framework.h"
 

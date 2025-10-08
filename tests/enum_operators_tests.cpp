@@ -1,4 +1,4 @@
-#include "../include/stc/enum_operators.h"
+#include "stc/enum_operators.h"
 #include "tests_framework.h"
 
 enum class test_enum : int

@@ -11,7 +11,7 @@ add_library(stc INTERFACE)
 target_include_directories(stc INTERFACE ${CMAKE_SOURCE_DIR}/include)
 target_compile_features(stc INTERFACE cxx_std_20)
 
-file(GLOB TEST_SOURCES
+file(GLOB TEST_SOURCES CONFIGURE_DEPENDS
     ${CMAKE_SOURCE_DIR}/tests/*.cpp
 )
 
