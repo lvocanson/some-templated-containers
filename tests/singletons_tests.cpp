@@ -1,7 +1,7 @@
 #include "stc/eager_singleton.h"
 #include "stc/explicit_singleton.h"
 #include "stc/lazy_singleton.h"
-#include "tests_framework.h"
+#include <gtest/gtest.h>
 
 namespace
 {
@@ -19,60 +19,60 @@ struct counted_element
 
 } // namespace
 
-CREATE_TEST(eager_singleton)
+TEST(singletons, eager_singleton)
 {
 	using singleton = stc::eager_singleton<counted_element>;
 
 	counted_element before;
 	auto& elem = singleton::instance();
-	CHECK(elem.count < before.count);
+	EXPECT_LT(elem.count, before.count);
 
 	auto& elem2 = singleton::instance();
-	CHECK(std::addressof(elem) == std::addressof(elem2));
+	EXPECT_EQ(std::addressof(elem), std::addressof(elem2));
 }
 
-CREATE_TEST(explicit_singleton)
+TEST(singletons, explicit_singleton)
 {
 	using singleton = stc::explicit_singleton<counted_element>;
 
-	CHECK(not singleton::instance_constructed());
+	EXPECT_FALSE(singleton::instance_constructed());
 
 	{
 		counted_element before;
 		auto& elem = singleton::construct_instance();
 		counted_element after;
-		CHECK(singleton::instance_constructed());
-		CHECK(before.count < elem.count && elem.count < after.count);
+		EXPECT_TRUE(singleton::instance_constructed());
+		EXPECT_TRUE(before.count < elem.count && elem.count < after.count);
 
 		auto& elem2 = singleton::instance();
-		CHECK(std::addressof(elem) == std::addressof(elem2));
+		EXPECT_EQ(std::addressof(elem), std::addressof(elem2));
 	}
 
-	CHECK(singleton::instance_constructed());
+	EXPECT_TRUE(singleton::instance_constructed());
 	singleton::destruct_instance();
-	CHECK(not singleton::instance_constructed());
+	EXPECT_FALSE(singleton::instance_constructed());
 
 	{
 		counted_element before;
 		auto& elem = singleton::construct_instance();
 		counted_element after;
-		CHECK(before.count < elem.count && elem.count < after.count);
-		CHECK(singleton::instance_constructed());
+		EXPECT_TRUE(before.count < elem.count && elem.count < after.count);
+		EXPECT_TRUE(singleton::instance_constructed());
 
 		auto& elem2 = singleton::instance();
-		CHECK(std::addressof(elem) == std::addressof(elem2));
+		EXPECT_EQ(std::addressof(elem), std::addressof(elem2));
 	}
 }
 
-CREATE_TEST(lazy_singleton)
+TEST(singletons, lazy_singleton)
 {
 	using singleton = stc::lazy_singleton<counted_element>;
 
 	counted_element before;
 	auto& elem = singleton::instance();
 	counted_element after;
-	CHECK(before.count < elem.count && elem.count < after.count);
+	EXPECT_TRUE(before.count < elem.count && elem.count < after.count);
 
 	auto& elem2 = singleton::instance();
-	CHECK(std::addressof(elem) == std::addressof(elem2));
+	EXPECT_EQ(std::addressof(elem), std::addressof(elem2));
 }

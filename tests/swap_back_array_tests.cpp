@@ -1,6 +1,9 @@
 #include "stc/swap_back_array.h"
 #include "test_element.h"
-#include "tests_framework.h"
+#include <gtest/gtest.h>
+
+namespace
+{
 
 stc::swap_back_array<test_element> test_sba(size_t count, test_element_data& data)
 {
@@ -25,7 +28,9 @@ bool find_test_element_by_id(const stc::swap_back_array<test_element>& sba, size
 	return false;
 }
 
-CREATE_TEST(swap_back_array__erase_index)
+} // namespace
+
+TEST(swap_back_array, erase_index)
 {
 	test_element_data data;
 	auto sba = test_sba(10, data);
@@ -34,35 +39,35 @@ CREATE_TEST(swap_back_array__erase_index)
 	erased_id = sba[2].id;
 	sba.erase_swap(2);
 
-	CHECK(sba.size() == 9);
-	CHECK(not find_test_element_by_id(sba, erased_id));
-	CHECK(data.ctor_counter == 10);
-	CHECK(data.copy_counter == 0);
-	CHECK(data.dtor_counter == 1);
-	CHECK(data.move_counter == 1);
+	EXPECT_EQ(sba.size(), 9);
+	EXPECT_FALSE(find_test_element_by_id(sba, erased_id));
+	EXPECT_EQ(data.ctor_counter, 10);
+	EXPECT_EQ(data.copy_counter, 0);
+	EXPECT_EQ(data.dtor_counter, 1);
+	EXPECT_EQ(data.move_counter, 1);
 
 	erased_id = sba[5].id;
 	sba.erase_swap(5);
 
-	CHECK(sba.size() == 8);
-	CHECK(not find_test_element_by_id(sba, erased_id));
-	CHECK(data.ctor_counter == 10);
-	CHECK(data.copy_counter == 0);
-	CHECK(data.dtor_counter == 2);
-	CHECK(data.move_counter == 2);
+	EXPECT_EQ(sba.size(), 8);
+	EXPECT_FALSE(find_test_element_by_id(sba, erased_id));
+	EXPECT_EQ(data.ctor_counter, 10);
+	EXPECT_EQ(data.copy_counter, 0);
+	EXPECT_EQ(data.dtor_counter, 2);
+	EXPECT_EQ(data.move_counter, 2);
 
 	erased_id = sba[0].id;
 	sba.erase_swap(0);
 
-	CHECK(sba.size() == 7);
-	CHECK(not find_test_element_by_id(sba, erased_id));
-	CHECK(data.ctor_counter == 10);
-	CHECK(data.copy_counter == 0);
-	CHECK(data.dtor_counter == 3);
-	CHECK(data.move_counter == 3);
+	EXPECT_EQ(sba.size(), 7);
+	EXPECT_FALSE(find_test_element_by_id(sba, erased_id));
+	EXPECT_EQ(data.ctor_counter, 10);
+	EXPECT_EQ(data.copy_counter, 0);
+	EXPECT_EQ(data.dtor_counter, 3);
+	EXPECT_EQ(data.move_counter, 3);
 }
 
-CREATE_TEST(swap_back_array__erase_index_at_end)
+TEST(swap_back_array, erase_index_at_end)
 {
 	test_element_data data;
 	auto sba = test_sba(10, data);
@@ -71,35 +76,35 @@ CREATE_TEST(swap_back_array__erase_index_at_end)
 	erased_id = sba[sba.size() - 1].id;
 	sba.erase_swap(sba.size() - 1);
 
-	CHECK(sba.size() == 9);
-	CHECK(not find_test_element_by_id(sba, erased_id));
-	CHECK(data.ctor_counter == 10);
-	CHECK(data.copy_counter == 0);
-	CHECK(data.dtor_counter == 1);
-	CHECK(data.move_counter == 0);
+	EXPECT_EQ(sba.size(), 9);
+	EXPECT_FALSE(find_test_element_by_id(sba, erased_id));
+	EXPECT_EQ(data.ctor_counter, 10);
+	EXPECT_EQ(data.copy_counter, 0);
+	EXPECT_EQ(data.dtor_counter, 1);
+	EXPECT_EQ(data.move_counter, 0);
 
 	erased_id = sba[sba.size() - 1].id;
 	sba.erase_swap(sba.size() - 1);
 
-	CHECK(sba.size() == 8);
-	CHECK(not find_test_element_by_id(sba, erased_id));
-	CHECK(data.ctor_counter == 10);
-	CHECK(data.copy_counter == 0);
-	CHECK(data.dtor_counter == 2);
-	CHECK(data.move_counter == 0);
+	EXPECT_EQ(sba.size(), 8);
+	EXPECT_FALSE(find_test_element_by_id(sba, erased_id));
+	EXPECT_EQ(data.ctor_counter, 10);
+	EXPECT_EQ(data.copy_counter, 0);
+	EXPECT_EQ(data.dtor_counter, 2);
+	EXPECT_EQ(data.move_counter, 0);
 
 	erased_id = sba[sba.size() - 1].id;
 	sba.erase_swap(sba.size() - 1);
 
-	CHECK(sba.size() == 7);
-	CHECK(not find_test_element_by_id(sba, erased_id));
-	CHECK(data.ctor_counter == 10);
-	CHECK(data.copy_counter == 0);
-	CHECK(data.dtor_counter == 3);
-	CHECK(data.move_counter == 0);
+	EXPECT_EQ(sba.size(), 7);
+	EXPECT_FALSE(find_test_element_by_id(sba, erased_id));
+	EXPECT_EQ(data.ctor_counter, 10);
+	EXPECT_EQ(data.copy_counter, 0);
+	EXPECT_EQ(data.dtor_counter, 3);
+	EXPECT_EQ(data.move_counter, 0);
 }
 
-CREATE_TEST(swap_back_array__erase_index_range)
+TEST(swap_back_array, erase_index_range)
 {
 	test_element_data data;
 	auto sba = test_sba(30, data);
@@ -112,15 +117,15 @@ CREATE_TEST(swap_back_array__erase_index_range)
 
 	sba.erase_swap(index, count);
 
-	CHECK(sba.size() == 29);
+	EXPECT_EQ(sba.size(), 29);
 	for (size_t id : erased_ids)
 	{
-		CHECK(not find_test_element_by_id(sba, id));
+		EXPECT_FALSE(find_test_element_by_id(sba, id));
 	}
-	CHECK(data.ctor_counter == 30);
-	CHECK(data.copy_counter == 0);
-	CHECK(data.dtor_counter == 1);
-	CHECK(data.move_counter == 1);
+	EXPECT_EQ(data.ctor_counter, 30);
+	EXPECT_EQ(data.copy_counter, 0);
+	EXPECT_EQ(data.dtor_counter, 1);
+	EXPECT_EQ(data.move_counter, 1);
 
 	index = 2;
 	count = 4;
@@ -129,15 +134,15 @@ CREATE_TEST(swap_back_array__erase_index_range)
 
 	sba.erase_swap(index, count);
 
-	CHECK(sba.size() == 25);
+	EXPECT_EQ(sba.size(), 25);
 	for (size_t id : erased_ids)
 	{
-		CHECK(not find_test_element_by_id(sba, id));
+		EXPECT_FALSE(find_test_element_by_id(sba, id));
 	}
-	CHECK(data.ctor_counter == 30);
-	CHECK(data.copy_counter == 0);
-	CHECK(data.dtor_counter == 5);
-	CHECK(data.move_counter == 5);
+	EXPECT_EQ(data.ctor_counter, 30);
+	EXPECT_EQ(data.copy_counter, 0);
+	EXPECT_EQ(data.dtor_counter, 5);
+	EXPECT_EQ(data.move_counter, 5);
 
 	index = 3;
 	count = 10;
@@ -146,18 +151,18 @@ CREATE_TEST(swap_back_array__erase_index_range)
 
 	sba.erase_swap(index, count);
 
-	CHECK(sba.size() == 15);
+	EXPECT_EQ(sba.size(), 15);
 	for (size_t id : erased_ids)
 	{
-		CHECK(not find_test_element_by_id(sba, id));
+		EXPECT_FALSE(find_test_element_by_id(sba, id));
 	}
-	CHECK(data.ctor_counter == 30);
-	CHECK(data.copy_counter == 0);
-	CHECK(data.dtor_counter == 15);
-	CHECK(data.move_counter == 15);
+	EXPECT_EQ(data.ctor_counter, 30);
+	EXPECT_EQ(data.copy_counter, 0);
+	EXPECT_EQ(data.dtor_counter, 15);
+	EXPECT_EQ(data.move_counter, 15);
 }
 
-CREATE_TEST(swap_back_array__erase_index_range_near_end)
+TEST(swap_back_array, erase_index_range_near_end)
 {
 	test_element_data data;
 	auto sba = test_sba(30, data);
@@ -170,15 +175,15 @@ CREATE_TEST(swap_back_array__erase_index_range_near_end)
 
 	sba.erase_swap(index, count);
 
-	CHECK(sba.size() == 29);
+	EXPECT_EQ(sba.size(), 29);
 	for (size_t id : erased_ids)
 	{
-		CHECK(not find_test_element_by_id(sba, id));
+		EXPECT_FALSE(find_test_element_by_id(sba, id));
 	}
-	CHECK(data.ctor_counter == 30);
-	CHECK(data.copy_counter == 0);
-	CHECK(data.dtor_counter == 1);
-	CHECK(data.move_counter == 1);
+	EXPECT_EQ(data.ctor_counter, 30);
+	EXPECT_EQ(data.copy_counter, 0);
+	EXPECT_EQ(data.dtor_counter, 1);
+	EXPECT_EQ(data.move_counter, 1);
 
 	index = 24;
 	count = 4;
@@ -187,15 +192,15 @@ CREATE_TEST(swap_back_array__erase_index_range_near_end)
 
 	sba.erase_swap(index, count);
 
-	CHECK(sba.size() == 25);
+	EXPECT_EQ(sba.size(), 25);
 	for (size_t id : erased_ids)
 	{
-		CHECK(not find_test_element_by_id(sba, id));
+		EXPECT_FALSE(find_test_element_by_id(sba, id));
 	}
-	CHECK(data.ctor_counter == 30);
-	CHECK(data.copy_counter == 0);
-	CHECK(data.dtor_counter == 5);
-	CHECK(data.move_counter == 2);
+	EXPECT_EQ(data.ctor_counter, 30);
+	EXPECT_EQ(data.copy_counter, 0);
+	EXPECT_EQ(data.dtor_counter, 5);
+	EXPECT_EQ(data.move_counter, 2);
 
 	index = 14;
 	count = 10;
@@ -204,18 +209,18 @@ CREATE_TEST(swap_back_array__erase_index_range_near_end)
 
 	sba.erase_swap(index, count);
 
-	CHECK(sba.size() == 15);
+	EXPECT_EQ(sba.size(), 15);
 	for (size_t id : erased_ids)
 	{
-		CHECK(not find_test_element_by_id(sba, id));
+		EXPECT_FALSE(find_test_element_by_id(sba, id));
 	}
-	CHECK(data.ctor_counter == 30);
-	CHECK(data.copy_counter == 0);
-	CHECK(data.dtor_counter == 15);
-	CHECK(data.move_counter == 3);
+	EXPECT_EQ(data.ctor_counter, 30);
+	EXPECT_EQ(data.copy_counter, 0);
+	EXPECT_EQ(data.dtor_counter, 15);
+	EXPECT_EQ(data.move_counter, 3);
 }
 
-CREATE_TEST(swap_back_array__erase_index_range_at_end)
+TEST(swap_back_array, erase_index_range_at_end)
 {
 	test_element_data data;
 	auto sba = test_sba(30, data);
@@ -228,15 +233,15 @@ CREATE_TEST(swap_back_array__erase_index_range_at_end)
 
 	sba.erase_swap(index, count);
 
-	CHECK(sba.size() == 29);
+	EXPECT_EQ(sba.size(), 29);
 	for (size_t id : erased_ids)
 	{
-		CHECK(not find_test_element_by_id(sba, id));
+		EXPECT_FALSE(find_test_element_by_id(sba, id));
 	}
-	CHECK(data.ctor_counter == 30);
-	CHECK(data.copy_counter == 0);
-	CHECK(data.dtor_counter == 1);
-	CHECK(data.move_counter == 0);
+	EXPECT_EQ(data.ctor_counter, 30);
+	EXPECT_EQ(data.copy_counter, 0);
+	EXPECT_EQ(data.dtor_counter, 1);
+	EXPECT_EQ(data.move_counter, 0);
 
 	index = 25;
 	count = 4;
@@ -245,15 +250,15 @@ CREATE_TEST(swap_back_array__erase_index_range_at_end)
 
 	sba.erase_swap(index, count);
 
-	CHECK(sba.size() == 25);
+	EXPECT_EQ(sba.size(), 25);
 	for (size_t id : erased_ids)
 	{
-		CHECK(not find_test_element_by_id(sba, id));
+		EXPECT_FALSE(find_test_element_by_id(sba, id));
 	}
-	CHECK(data.ctor_counter == 30);
-	CHECK(data.copy_counter == 0);
-	CHECK(data.dtor_counter == 5);
-	CHECK(data.move_counter == 0);
+	EXPECT_EQ(data.ctor_counter, 30);
+	EXPECT_EQ(data.copy_counter, 0);
+	EXPECT_EQ(data.dtor_counter, 5);
+	EXPECT_EQ(data.move_counter, 0);
 
 	index = 15;
 	count = 10;
@@ -262,18 +267,18 @@ CREATE_TEST(swap_back_array__erase_index_range_at_end)
 
 	sba.erase_swap(index, count);
 
-	CHECK(sba.size() == 15);
+	EXPECT_EQ(sba.size(), 15);
 	for (size_t id : erased_ids)
 	{
-		CHECK(not find_test_element_by_id(sba, id));
+		EXPECT_FALSE(find_test_element_by_id(sba, id));
 	}
-	CHECK(data.ctor_counter == 30);
-	CHECK(data.copy_counter == 0);
-	CHECK(data.dtor_counter == 15);
-	CHECK(data.move_counter == 0);
+	EXPECT_EQ(data.ctor_counter, 30);
+	EXPECT_EQ(data.copy_counter, 0);
+	EXPECT_EQ(data.dtor_counter, 15);
+	EXPECT_EQ(data.move_counter, 0);
 }
 
-CREATE_TEST(swap_back_array__erase_iterator)
+TEST(swap_back_array, erase_iterator)
 {
 	test_element_data data;
 	auto sba = test_sba(10, data);
@@ -284,37 +289,37 @@ CREATE_TEST(swap_back_array__erase_iterator)
 	erased_id = it->id;
 	sba.erase_swap(it);
 
-	CHECK(sba.size() == 9);
-	CHECK(not find_test_element_by_id(sba, erased_id));
-	CHECK(data.ctor_counter == 10);
-	CHECK(data.copy_counter == 0);
-	CHECK(data.dtor_counter == 1);
-	CHECK(data.move_counter == 1);
+	EXPECT_EQ(sba.size(), 9);
+	EXPECT_FALSE(find_test_element_by_id(sba, erased_id));
+	EXPECT_EQ(data.ctor_counter, 10);
+	EXPECT_EQ(data.copy_counter, 0);
+	EXPECT_EQ(data.dtor_counter, 1);
+	EXPECT_EQ(data.move_counter, 1);
 
 	std::advance(it, 2);
 	erased_id = it->id;
 	sba.erase_swap(it);
 
-	CHECK(sba.size() == 8);
-	CHECK(not find_test_element_by_id(sba, erased_id));
-	CHECK(data.ctor_counter == 10);
-	CHECK(data.copy_counter == 0);
-	CHECK(data.dtor_counter == 2);
-	CHECK(data.move_counter == 2);
+	EXPECT_EQ(sba.size(), 8);
+	EXPECT_FALSE(find_test_element_by_id(sba, erased_id));
+	EXPECT_EQ(data.ctor_counter, 10);
+	EXPECT_EQ(data.copy_counter, 0);
+	EXPECT_EQ(data.dtor_counter, 2);
+	EXPECT_EQ(data.move_counter, 2);
 
 	std::advance(it, 3);
 	erased_id = it->id;
 	sba.erase_swap(it);
 
-	CHECK(sba.size() == 7);
-	CHECK(not find_test_element_by_id(sba, erased_id));
-	CHECK(data.ctor_counter == 10);
-	CHECK(data.copy_counter == 0);
-	CHECK(data.dtor_counter == 3);
-	CHECK(data.move_counter == 3);
+	EXPECT_EQ(sba.size(), 7);
+	EXPECT_FALSE(find_test_element_by_id(sba, erased_id));
+	EXPECT_EQ(data.ctor_counter, 10);
+	EXPECT_EQ(data.copy_counter, 0);
+	EXPECT_EQ(data.dtor_counter, 3);
+	EXPECT_EQ(data.move_counter, 3);
 }
 
-CREATE_TEST(swap_back_array__erase_iterator_at_end)
+TEST(swap_back_array, erase_iterator_at_end)
 {
 	test_element_data data;
 	auto sba = test_sba(10, data);
@@ -324,37 +329,37 @@ CREATE_TEST(swap_back_array__erase_iterator_at_end)
 	erased_id = it->id;
 	sba.erase_swap(it);
 
-	CHECK(sba.size() == 9);
-	CHECK(not find_test_element_by_id(sba, erased_id));
-	CHECK(data.ctor_counter == 10);
-	CHECK(data.copy_counter == 0);
-	CHECK(data.dtor_counter == 1);
-	CHECK(data.move_counter == 0);
+	EXPECT_EQ(sba.size(), 9);
+	EXPECT_FALSE(find_test_element_by_id(sba, erased_id));
+	EXPECT_EQ(data.ctor_counter, 10);
+	EXPECT_EQ(data.copy_counter, 0);
+	EXPECT_EQ(data.dtor_counter, 1);
+	EXPECT_EQ(data.move_counter, 0);
 
 	it = --sba.end();
 	erased_id = it->id;
 	sba.erase_swap(it);
 
-	CHECK(sba.size() == 8);
-	CHECK(not find_test_element_by_id(sba, erased_id));
-	CHECK(data.ctor_counter == 10);
-	CHECK(data.copy_counter == 0);
-	CHECK(data.dtor_counter == 2);
-	CHECK(data.move_counter == 0);
+	EXPECT_EQ(sba.size(), 8);
+	EXPECT_FALSE(find_test_element_by_id(sba, erased_id));
+	EXPECT_EQ(data.ctor_counter, 10);
+	EXPECT_EQ(data.copy_counter, 0);
+	EXPECT_EQ(data.dtor_counter, 2);
+	EXPECT_EQ(data.move_counter, 0);
 
 	it = --sba.end();
 	erased_id = it->id;
 	sba.erase_swap(it);
 
-	CHECK(sba.size() == 7);
-	CHECK(not find_test_element_by_id(sba, erased_id));
-	CHECK(data.ctor_counter == 10);
-	CHECK(data.copy_counter == 0);
-	CHECK(data.dtor_counter == 3);
-	CHECK(data.move_counter == 0);
+	EXPECT_EQ(sba.size(), 7);
+	EXPECT_FALSE(find_test_element_by_id(sba, erased_id));
+	EXPECT_EQ(data.ctor_counter, 10);
+	EXPECT_EQ(data.copy_counter, 0);
+	EXPECT_EQ(data.dtor_counter, 3);
+	EXPECT_EQ(data.move_counter, 0);
 }
 
-CREATE_TEST(swap_back_array__erase_iterator_range)
+TEST(swap_back_array, erase_iterator_range)
 {
 	test_element_data data;
 	auto sba = test_sba(30, data);
@@ -367,15 +372,15 @@ CREATE_TEST(swap_back_array__erase_iterator_range)
 
 	sba.erase_swap(first, last);
 
-	CHECK(sba.size() == 29);
+	EXPECT_EQ(sba.size(), 29);
 	for (size_t id : erased_ids)
 	{
-		CHECK(not find_test_element_by_id(sba, id));
+		EXPECT_FALSE(find_test_element_by_id(sba, id));
 	}
-	CHECK(data.ctor_counter == 30);
-	CHECK(data.copy_counter == 0);
-	CHECK(data.dtor_counter == 1);
-	CHECK(data.move_counter == 1);
+	EXPECT_EQ(data.ctor_counter, 30);
+	EXPECT_EQ(data.copy_counter, 0);
+	EXPECT_EQ(data.dtor_counter, 1);
+	EXPECT_EQ(data.move_counter, 1);
 
 	first = sba.begin() + 2;
 	last = sba.begin() + 6;
@@ -384,15 +389,15 @@ CREATE_TEST(swap_back_array__erase_iterator_range)
 
 	sba.erase_swap(first, last);
 
-	CHECK(sba.size() == 25);
+	EXPECT_EQ(sba.size(), 25);
 	for (size_t id : erased_ids)
 	{
-		CHECK(not find_test_element_by_id(sba, id));
+		EXPECT_FALSE(find_test_element_by_id(sba, id));
 	}
-	CHECK(data.ctor_counter == 30);
-	CHECK(data.copy_counter == 0);
-	CHECK(data.dtor_counter == 5);
-	CHECK(data.move_counter == 5);
+	EXPECT_EQ(data.ctor_counter, 30);
+	EXPECT_EQ(data.copy_counter, 0);
+	EXPECT_EQ(data.dtor_counter, 5);
+	EXPECT_EQ(data.move_counter, 5);
 
 	first = sba.begin() + 3;
 	last = sba.begin() + 13;
@@ -401,18 +406,18 @@ CREATE_TEST(swap_back_array__erase_iterator_range)
 
 	sba.erase_swap(first, last);
 
-	CHECK(sba.size() == 15);
+	EXPECT_EQ(sba.size(), 15);
 	for (size_t id : erased_ids)
 	{
-		CHECK(not find_test_element_by_id(sba, id));
+		EXPECT_FALSE(find_test_element_by_id(sba, id));
 	}
-	CHECK(data.ctor_counter == 30);
-	CHECK(data.copy_counter == 0);
-	CHECK(data.dtor_counter == 15);
-	CHECK(data.move_counter == 15);
+	EXPECT_EQ(data.ctor_counter, 30);
+	EXPECT_EQ(data.copy_counter, 0);
+	EXPECT_EQ(data.dtor_counter, 15);
+	EXPECT_EQ(data.move_counter, 15);
 }
 
-CREATE_TEST(swap_back_array__erase_iterator_range_near_end)
+TEST(swap_back_array, erase_iterator_range_near_end)
 {
 	test_element_data data;
 	auto sba = test_sba(30, data);
@@ -425,15 +430,15 @@ CREATE_TEST(swap_back_array__erase_iterator_range_near_end)
 
 	sba.erase_swap(first, last);
 
-	CHECK(sba.size() == 29);
+	EXPECT_EQ(sba.size(), 29);
 	for (size_t id : erased_ids)
 	{
-		CHECK(not find_test_element_by_id(sba, id));
+		EXPECT_FALSE(find_test_element_by_id(sba, id));
 	}
-	CHECK(data.ctor_counter == 30);
-	CHECK(data.copy_counter == 0);
-	CHECK(data.dtor_counter == 1);
-	CHECK(data.move_counter == 1);
+	EXPECT_EQ(data.ctor_counter, 30);
+	EXPECT_EQ(data.copy_counter, 0);
+	EXPECT_EQ(data.dtor_counter, 1);
+	EXPECT_EQ(data.move_counter, 1);
 
 	first = sba.end() - 5;
 	last = sba.end() - 1;
@@ -442,15 +447,15 @@ CREATE_TEST(swap_back_array__erase_iterator_range_near_end)
 
 	sba.erase_swap(first, last);
 
-	CHECK(sba.size() == 25);
+	EXPECT_EQ(sba.size(), 25);
 	for (size_t id : erased_ids)
 	{
-		CHECK(not find_test_element_by_id(sba, id));
+		EXPECT_FALSE(find_test_element_by_id(sba, id));
 	}
-	CHECK(data.ctor_counter == 30);
-	CHECK(data.copy_counter == 0);
-	CHECK(data.dtor_counter == 5);
-	CHECK(data.move_counter == 2);
+	EXPECT_EQ(data.ctor_counter, 30);
+	EXPECT_EQ(data.copy_counter, 0);
+	EXPECT_EQ(data.dtor_counter, 5);
+	EXPECT_EQ(data.move_counter, 2);
 
 	first = sba.end() - 11;
 	last = sba.end() - 1;
@@ -459,18 +464,18 @@ CREATE_TEST(swap_back_array__erase_iterator_range_near_end)
 
 	sba.erase_swap(first, last);
 
-	CHECK(sba.size() == 15);
+	EXPECT_EQ(sba.size(), 15);
 	for (size_t id : erased_ids)
 	{
-		CHECK(not find_test_element_by_id(sba, id));
+		EXPECT_FALSE(find_test_element_by_id(sba, id));
 	}
-	CHECK(data.ctor_counter == 30);
-	CHECK(data.copy_counter == 0);
-	CHECK(data.dtor_counter == 15);
-	CHECK(data.move_counter == 3);
+	EXPECT_EQ(data.ctor_counter, 30);
+	EXPECT_EQ(data.copy_counter, 0);
+	EXPECT_EQ(data.dtor_counter, 15);
+	EXPECT_EQ(data.move_counter, 3);
 }
 
-CREATE_TEST(swap_back_array__erase_iterator_range_at_end)
+TEST(swap_back_array, erase_iterator_range_at_end)
 {
 	test_element_data data;
 	auto sba = test_sba(30, data);
@@ -483,15 +488,15 @@ CREATE_TEST(swap_back_array__erase_iterator_range_at_end)
 
 	sba.erase_swap(first, last);
 
-	CHECK(sba.size() == 29);
+	EXPECT_EQ(sba.size(), 29);
 	for (size_t id : erased_ids)
 	{
-		CHECK(not find_test_element_by_id(sba, id));
+		EXPECT_FALSE(find_test_element_by_id(sba, id));
 	}
-	CHECK(data.ctor_counter == 30);
-	CHECK(data.copy_counter == 0);
-	CHECK(data.dtor_counter == 1);
-	CHECK(data.move_counter == 0);
+	EXPECT_EQ(data.ctor_counter, 30);
+	EXPECT_EQ(data.copy_counter, 0);
+	EXPECT_EQ(data.dtor_counter, 1);
+	EXPECT_EQ(data.move_counter, 0);
 
 	first = sba.end() - 4;
 	last = sba.end();
@@ -500,15 +505,15 @@ CREATE_TEST(swap_back_array__erase_iterator_range_at_end)
 
 	sba.erase_swap(first, last);
 
-	CHECK(sba.size() == 25);
+	EXPECT_EQ(sba.size(), 25);
 	for (size_t id : erased_ids)
 	{
-		CHECK(not find_test_element_by_id(sba, id));
+		EXPECT_FALSE(find_test_element_by_id(sba, id));
 	}
-	CHECK(data.ctor_counter == 30);
-	CHECK(data.copy_counter == 0);
-	CHECK(data.dtor_counter == 5);
-	CHECK(data.move_counter == 0);
+	EXPECT_EQ(data.ctor_counter, 30);
+	EXPECT_EQ(data.copy_counter, 0);
+	EXPECT_EQ(data.dtor_counter, 5);
+	EXPECT_EQ(data.move_counter, 0);
 
 	first = sba.end() - 10;
 	last = sba.end();
@@ -517,13 +522,13 @@ CREATE_TEST(swap_back_array__erase_iterator_range_at_end)
 
 	sba.erase_swap(first, last);
 
-	CHECK(sba.size() == 15);
+	EXPECT_EQ(sba.size(), 15);
 	for (size_t id : erased_ids)
 	{
-		CHECK(not find_test_element_by_id(sba, id));
+		EXPECT_FALSE(find_test_element_by_id(sba, id));
 	}
-	CHECK(data.ctor_counter == 30);
-	CHECK(data.copy_counter == 0);
-	CHECK(data.dtor_counter == 15);
-	CHECK(data.move_counter == 0);
+	EXPECT_EQ(data.ctor_counter, 30);
+	EXPECT_EQ(data.copy_counter, 0);
+	EXPECT_EQ(data.dtor_counter, 15);
+	EXPECT_EQ(data.move_counter, 0);
 }
